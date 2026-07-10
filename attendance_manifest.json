@@ -1,0 +1,14 @@
+{
+  "name": "Eurolux Site Attendance",
+  "short_name": "Attendance",
+  "description": "Site attendance tracking for Eurolux installation teams",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a3a5c",
+  "theme_color": "#1a3a5c",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "https://placehold.co/192x192/1a3a5c/ffffff?text=EA", "sizes": "192x192", "type": "image/png" },
+    { "src": "https://placehold.co/512x512/1a3a5c/ffffff?text=EA", "sizes": "512x512", "type": "image/png" }
+  ]
+}
