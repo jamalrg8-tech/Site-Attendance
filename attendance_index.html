@@ -7,257 +7,253 @@
   <meta name="theme-color" content="#1a3a5c">
   <title>Eurolux Site Attendance</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
-      --navy: #1a3a5c;
-      --blue: #2563a8;
-      --blue-light: #e8f0fb;
-      --green: #1e7d3a;
-      --green-light: #e8f5ec;
-      --red: #c0392b;
-      --amber: #d97706;
-      --amber-light: #fef3c7;
-      --text: #1a1a2e;
-      --text-muted: #6b7280;
-      --border: #e2e8f0;
-      --bg: #f4f6fa;
-      --white: #ffffff;
-      --shadow: 0 2px 10px rgba(0,0,0,0.08);
-      --radius: 10px;
+      --navy:#1a3a5c; --blue:#2563a8; --blue-lt:#e8f0fb;
+      --green:#1e7d3a; --green-lt:#e8f5ec;
+      --red:#c0392b; --amber:#d97706; --amber-lt:#fef3c7;
+      --text:#1a1a2e; --muted:#6b7280; --border:#e2e8f0;
+      --bg:#f4f6fa; --white:#fff;
+      --shadow:0 2px 10px rgba(0,0,0,.08); --r:10px;
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); }
-    .app { display: flex; flex-direction: column; min-height: 100vh; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .app{display:flex;flex-direction:column;min-height:100vh}
 
-    /* ── Header ── */
-    .header { background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%); color: #fff; padding: 14px 16px 14px 60px; position: relative; box-shadow: 0 3px 12px rgba(0,0,0,0.25); }
-    .header-title { font-size: 17px; font-weight: 700; letter-spacing: 0.2px; }
-    .header-sub { font-size: 11px; opacity: 0.8; margin-top: 1px; letter-spacing: 0.5px; text-transform: uppercase; }
-    .menu-btn { position:absolute; left:14px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.15); border:1.5px solid rgba(255,255,255,0.4); color:#fff; font-size:18px; cursor:pointer; padding:6px 9px; border-radius:7px; line-height:1; }
-    .sync-indicator { position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:12px; opacity:0.8; display:flex; align-items:center; gap:5px; }
-    .sync-dot { width:7px; height:7px; border-radius:50%; background:#4ade80; animation:pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    /* Header */
+    .header{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);color:#fff;padding:14px 16px 14px 60px;position:relative;box-shadow:0 3px 12px rgba(0,0,0,.25)}
+    .header-title{font-size:17px;font-weight:700}
+    .header-sub{font-size:11px;opacity:.8;margin-top:1px;text-transform:uppercase;letter-spacing:.5px}
+    .menu-btn{position:absolute;left:14px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);color:#fff;font-size:18px;cursor:pointer;padding:6px 9px;border-radius:7px;line-height:1}
+    .sync-ind{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.85;display:flex;align-items:center;gap:5px}
+    .sync-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-    /* ── Side menu ── */
-    .side-menu { position:fixed; left:-290px; top:0; width:270px; height:100vh; background:#fff; box-shadow:3px 0 20px rgba(0,0,0,0.12); z-index:999; transition:left 0.28s ease; overflow-y:auto; }
-    .side-menu.open { left:0; }
-    .menu-header { background:linear-gradient(135deg, var(--navy), var(--blue)); color:#fff; padding:20px 16px 16px; }
-    .menu-header h3 { font-size:14px; font-weight:700; margin-bottom:2px; }
-    .menu-header p { font-size:11px; opacity:0.75; }
-    .menu-section-label { padding:12px 16px 4px; font-size:10px; color:#999; text-transform:uppercase; letter-spacing:1px; font-weight:700; }
-    .menu-item { display:flex; align-items:center; gap:10px; width:100%; padding:13px 16px; border:none; background:none; text-align:left; cursor:pointer; font-size:14px; color:#333; border-left:3px solid transparent; transition:all 0.15s; }
-    .menu-item:hover { background:#f0f7ff; border-left-color: var(--blue); color: var(--navy); }
-    .menu-item.active { background:#e8f0fb; border-left-color: var(--blue); color: var(--navy); font-weight:600; }
-    .menu-divider { border:none; border-top:1px solid #f0f0f0; margin:6px 0; }
-    .menu-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:998; display:none; }
-    .menu-overlay.show { display:block; }
+    /* Side menu */
+    .side-menu{position:fixed;left:-290px;top:0;width:270px;height:100vh;background:#fff;box-shadow:3px 0 20px rgba(0,0,0,.12);z-index:999;transition:left .28s ease;overflow-y:auto}
+    .side-menu.open{left:0}
+    .menu-hdr{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:20px 16px 16px}
+    .menu-hdr h3{font-size:14px;font-weight:700;margin-bottom:2px}
+    .menu-hdr p{font-size:11px;opacity:.75}
+    .menu-sec{padding:12px 16px 4px;font-size:10px;color:#999;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+    .menu-item{display:flex;align-items:center;gap:10px;width:100%;padding:13px 16px;border:none;background:none;text-align:left;cursor:pointer;font-size:14px;color:#333;border-left:3px solid transparent;transition:all .15s}
+    .menu-item:hover{background:#f0f7ff;border-left-color:var(--blue);color:var(--navy)}
+    .menu-item.active{background:#e8f0fb;border-left-color:var(--blue);color:var(--navy);font-weight:600}
+    .menu-div{border:none;border-top:1px solid #f0f0f0;margin:6px 0}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:998;display:none}
+    .overlay.show{display:block}
 
-    /* ── Navbar ── */
-    .navbar { display:flex; background:#fff; border-bottom:1px solid var(--border); overflow-x:auto; scrollbar-width:none; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
-    .navbar::-webkit-scrollbar { display:none; }
-    .navbar button { flex-shrink:0; padding:11px 14px; border:none; background:none; cursor:pointer; border-bottom:3px solid transparent; font-size:13px; color:var(--text-muted); transition:all 0.2s; white-space:nowrap; }
-    .navbar button.active { color:var(--blue); border-bottom-color:var(--blue); font-weight:700; }
-    .navbar button:hover:not(.active) { background:#f9f9f9; color:var(--text); }
+    /* Navbar */
+    .navbar{display:flex;background:#fff;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+    .navbar::-webkit-scrollbar{display:none}
+    .navbar button{flex-shrink:0;padding:11px 14px;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;font-size:13px;color:var(--muted);transition:all .2s;white-space:nowrap}
+    .navbar button.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:700}
+    .navbar button:hover:not(.active){background:#f9f9f9;color:var(--text)}
 
-    /* ── Main ── */
-    .main { flex:1; padding:14px; }
-    .container { max-width:860px; margin:0 auto; background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; display:none; }
-    .container.active { display:block; }
+    /* Main */
+    .main{flex:1;padding:14px}
+    .container{max-width:860px;margin:0 auto;background:#fff;border-radius:var(--r);box-shadow:var(--shadow);padding:20px;display:none}
+    .container.active{display:block}
 
-    /* ── Buttons ── */
-    .btn { display:inline-flex; align-items:center; gap:6px; padding:10px 18px; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600; transition:all 0.18s; }
-    .btn-primary { background:var(--navy); color:#fff; }
-    .btn-primary:hover { background:#0f2a44; }
-    .btn-success { background:var(--green); color:#fff; }
-    .btn-success:hover { background:#165c2b; }
-    .btn-danger { background:var(--red); color:#fff; }
-    .btn-danger:hover { background:#992d22; }
-    .btn-secondary { background:#6b7280; color:#fff; }
-    .btn-secondary:hover { background:#4b5563; }
-    .btn-outline { background:#fff; color:var(--navy); border:2px solid var(--navy); }
-    .btn-outline:hover { background:var(--blue-light); }
-    .btn-sm { padding:6px 12px; font-size:12px; border-radius:6px; }
-    .btn-icon { background:none; border:none; cursor:pointer; padding:5px 8px; border-radius:6px; font-size:16px; color:var(--text-muted); }
-    .btn-icon:hover { background:#f0f0f0; color:var(--text); }
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:all .18s}
+    .btn-primary{background:var(--navy);color:#fff}.btn-primary:hover{background:#0f2a44}
+    .btn-success{background:var(--green);color:#fff}.btn-success:hover{background:#165c2b}
+    .btn-danger{background:var(--red);color:#fff}.btn-danger:hover{background:#992d22}
+    .btn-secondary{background:#6b7280;color:#fff}.btn-secondary:hover{background:#4b5563}
+    .btn-outline{background:#fff;color:var(--navy);border:2px solid var(--navy)}.btn-outline:hover{background:var(--blue-lt)}
+    .btn-amber{background:#b45309;color:#fff}.btn-amber:hover{background:#92400e}
+    .btn-sm{padding:6px 12px;font-size:12px;border-radius:6px}
+    .btn-icon{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:6px;font-size:16px;color:var(--muted)}
+    .btn-icon:hover{background:#f0f0f0;color:var(--text)}
 
-    /* ── Forms ── */
-    .form-group { margin-bottom:14px; }
-    .form-group label { display:block; margin-bottom:5px; font-weight:600; font-size:12px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.4px; }
-    .form-control { width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:15px; font-family:inherit; color:var(--text); transition:border-color 0.2s; background:#fff; }
-    .form-control:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,168,0.1); }
-    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-    textarea.form-control { resize:vertical; min-height:70px; }
+    /* Forms */
+    .form-group{margin-bottom:14px}
+    .form-group label{display:block;margin-bottom:5px;font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+    .form-control{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;font-family:inherit;color:var(--text);transition:border-color .2s;background:#fff}
+    .form-control:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,168,.1)}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    textarea.form-control{resize:vertical;min-height:70px}
 
-    /* ── Entry table ── */
-    .entry-wrap { overflow-x:auto; margin-top:8px; }
-    table.entries { width:100%; border-collapse:collapse; min-width:480px; }
-    table.entries thead tr { background:var(--navy); }
-    table.entries th { color:#fff; padding:9px 10px; font-size:11px; text-align:left; font-weight:700; letter-spacing:0.4px; text-transform:uppercase; }
-    table.entries td { padding:5px 5px; border-bottom:1px solid #f0f0f0; vertical-align:middle; }
-    table.entries tr:last-child td { border-bottom:none; }
-    table.entries tr:hover td { background:#fafbff; }
-    .entry-num { color:#aaa; font-size:12px; font-weight:700; text-align:center; width:32px; }
-    .entry-input { width:100%; padding:8px 8px; border:1.5px solid var(--border); border-radius:6px; font-size:14px; font-family:inherit; }
-    .entry-input:focus { outline:none; border-color:var(--blue); }
-    input[type="time"].entry-input { width:120px; cursor:pointer; }
-    .add-row-btn { display:flex; align-items:center; gap:6px; padding:10px; background:#f9faff; border:1.5px dashed #b8c8e0; border-radius:8px; width:100%; cursor:pointer; font-size:13px; color:var(--blue); font-weight:600; margin-top:8px; justify-content:center; transition:all 0.15s; }
-    .add-row-btn:hover { background:var(--blue-light); border-color:var(--blue); }
+    /* Entry table */
+    .entry-wrap{overflow-x:auto;margin-top:8px}
+    table.entries{width:100%;border-collapse:collapse;min-width:480px}
+    table.entries thead tr{background:var(--navy)}
+    table.entries th{color:#fff;padding:9px 10px;font-size:11px;text-align:left;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
+    table.entries td{padding:5px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+    .entry-input{width:100%;padding:8px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit}
+    .entry-input:focus{outline:none;border-color:var(--blue)}
+    input[type="time"].entry-input{width:118px;cursor:pointer}
+    .add-row-btn{display:flex;align-items:center;gap:6px;padding:10px;background:#f9faff;border:1.5px dashed #b8c8e0;border-radius:8px;width:100%;cursor:pointer;font-size:13px;color:var(--blue);font-weight:600;margin-top:8px;justify-content:center;transition:all .15s}
+    .add-row-btn:hover{background:var(--blue-lt);border-color:var(--blue)}
 
-    /* ── Dashboard ── */
-    .today-banner { background:linear-gradient(135deg, var(--navy), var(--blue)); color:#fff; border-radius:var(--radius); padding:18px 20px; margin-bottom:16px; }
-    .today-date { font-size:22px; font-weight:700; margin-bottom:2px; }
-    .today-sub { font-size:12px; opacity:0.75; text-transform:uppercase; letter-spacing:0.5px; }
-    .new-record-btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:16px; background:var(--green); color:#fff; border:none; border-radius:var(--radius); font-size:16px; font-weight:700; cursor:pointer; margin-bottom:16px; box-shadow:0 4px 12px rgba(30,125,58,0.25); transition:all 0.2s; }
-    .new-record-btn:hover { background:#165c2b; transform:translateY(-1px); box-shadow:0 6px 16px rgba(30,125,58,0.35); }
-    .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
-    .stat-box { background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:14px 10px; text-align:center; }
-    .stat-num { font-size:28px; font-weight:800; color:var(--navy); line-height:1; }
-    .stat-lbl { font-size:11px; color:var(--text-muted); margin-top:4px; text-transform:uppercase; letter-spacing:0.3px; }
-    .section-hdr { font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.6px; margin:16px 0 8px; padding-bottom:6px; border-bottom:2px solid var(--blue-light); }
+    /* Signature pad */
+    .sig-box{border:2px solid var(--border);border-radius:8px;background:#fff;overflow:hidden;position:relative}
+    .sig-box canvas{width:100%;height:130px;display:block;cursor:crosshair;touch-action:none}
+    .sig-box-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:13px;color:#ccc;pointer-events:none;user-select:none}
+    .sig-actions{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
+    .sig-info{font-size:12px;color:var(--green);margin-left:4px}
 
-    /* ── Record cards ── */
-    .record-card { border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:8px; cursor:pointer; transition:all 0.15s; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
-    .record-card:hover { border-color:var(--blue); box-shadow:0 3px 10px rgba(37,99,168,0.1); background:#fafbff; }
-    .record-card-main .project { font-size:15px; font-weight:700; color:var(--navy); margin-bottom:3px; }
-    .record-card-main .meta { font-size:12px; color:var(--text-muted); }
-    .record-card-right { text-align:right; flex-shrink:0; }
-    .record-date { font-size:13px; font-weight:600; color:var(--blue); margin-bottom:4px; }
+    /* Dashboard */
+    .today-banner{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;border-radius:var(--r);padding:18px 20px;margin-bottom:16px}
+    .today-date{font-size:22px;font-weight:700;margin-bottom:2px}
+    .today-sub{font-size:12px;opacity:.75;text-transform:uppercase;letter-spacing:.5px}
+    .new-rec-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;background:var(--green);color:#fff;border:none;border-radius:var(--r);font-size:16px;font-weight:700;cursor:pointer;margin-bottom:16px;box-shadow:0 4px 12px rgba(30,125,58,.25);transition:all .2s}
+    .new-rec-btn:hover{background:#165c2b;transform:translateY(-1px)}
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+    .stat-box{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:14px 10px;text-align:center}
+    .stat-num{font-size:28px;font-weight:800;color:var(--navy);line-height:1}
+    .stat-lbl{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.3px}
+    .sec-hdr{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 8px;padding-bottom:6px;border-bottom:2px solid var(--blue-lt)}
 
-    /* ── Badges ── */
-    .badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:700; }
-    .badge-blue { background:var(--blue-light); color:var(--blue); }
-    .badge-green { background:var(--green-light); color:var(--green); }
-    .badge-amber { background:var(--amber-light); color:var(--amber); }
+    /* Record cards */
+    .rec-card{border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:all .15s;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+    .rec-card:hover{border-color:var(--blue);box-shadow:0 3px 10px rgba(37,99,168,.1);background:#fafbff}
+    .rec-card .project{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:3px}
+    .rec-card .meta{font-size:12px;color:var(--muted)}
+    .rec-card-right{text-align:right;flex-shrink:0}
+    .rec-date{font-size:13px;font-weight:600;color:var(--blue);margin-bottom:4px}
+    .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
+    .badge-blue{background:var(--blue-lt);color:var(--blue)}
 
-    /* ── Detail view ── */
-    .detail-header { background:linear-gradient(135deg, var(--navy), var(--blue)); color:#fff; border-radius:var(--radius); padding:18px 20px; margin-bottom:16px; }
-    .detail-header h2 { font-size:18px; font-weight:700; margin-bottom:4px; }
-    .detail-header .detail-meta { font-size:13px; opacity:0.85; }
-    .detail-section { background:#f9faff; border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin-bottom:14px; }
-    .detail-section h4 { font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px; }
-    .detail-field { display:flex; gap:10px; margin-bottom:6px; font-size:14px; }
-    .detail-field-label { font-weight:600; color:#555; min-width:120px; flex-shrink:0; }
-    .detail-field-val { color:var(--text); }
-    table.detail-entries { width:100%; border-collapse:collapse; font-size:14px; }
-    table.detail-entries th { background:var(--navy); color:#fff; padding:8px 10px; font-size:11px; text-align:left; text-transform:uppercase; letter-spacing:0.4px; }
-    table.detail-entries td { padding:8px 10px; border-bottom:1px solid #f0f0f0; }
-    table.detail-entries tr:last-child td { border-bottom:none; }
-    table.detail-entries tbody tr:hover td { background:#f5f7ff; }
+    /* Detail */
+    .detail-hdr{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;border-radius:var(--r);padding:18px 20px;margin-bottom:16px}
+    .detail-hdr h2{font-size:18px;font-weight:700;margin-bottom:4px}
+    .detail-hdr .dmeta{font-size:13px;opacity:.85}
+    .detail-sec{background:#f9faff;border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:14px}
+    .detail-sec h4{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+    .dfield{display:flex;gap:10px;margin-bottom:6px;font-size:14px}
+    .dfield-lbl{font-weight:600;color:#555;min-width:120px;flex-shrink:0}
+    table.det-ent{width:100%;border-collapse:collapse;font-size:14px}
+    table.det-ent th{background:var(--navy);color:#fff;padding:8px 10px;font-size:11px;text-align:left;text-transform:uppercase;letter-spacing:.4px}
+    table.det-ent td{padding:8px 10px;border-bottom:1px solid #f0f0f0}
 
-    /* ── Employees view ── */
-    .emp-list-item { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid #f5f5f5; }
-    .emp-list-item:last-child { border-bottom:none; }
-    .emp-list-name { font-size:14px; font-weight:500; }
-    .emp-list-actions { display:flex; gap:4px; }
+    /* Filter */
+    .filter-bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+    .filter-bar input,.filter-bar select{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:#fff;flex:1;min-width:130px}
+    .filter-bar input:focus,.filter-bar select:focus{outline:none;border-color:var(--blue)}
 
-    /* ── Search bar ── */
-    .filter-bar { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
-    .filter-bar input, .filter-bar select { padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; background:#fff; flex:1; min-width:130px; }
-    .filter-bar input:focus, .filter-bar select:focus { outline:none; border-color:var(--blue); }
+    /* Employees */
+    .emp-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #f5f5f5}
+    .emp-item:last-child{border-bottom:none}
+    .emp-name{font-size:14px;font-weight:500}
 
-    /* ── Toast ── */
-    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(10px); background:#1a1a2e; color:#fff; padding:11px 20px; border-radius:8px; font-size:13px; font-weight:500; z-index:9999; opacity:0; transition:all 0.3s; pointer-events:none; min-width:200px; text-align:center; }
-    .toast.visible { opacity:1; transform:translateX(-50%) translateY(0); }
-    .toast.success { background:var(--green); }
-    .toast.error { background:var(--red); }
+    /* ── PREVIEW MODAL ─────────────────────────── */
+    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:2000;display:none;align-items:flex-start;justify-content:center;padding:12px;overflow-y:auto}
+    .modal-bg.show{display:flex}
+    .modal-wrap{background:#fff;border-radius:12px;width:100%;max-width:760px;margin:auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+    .modal-bar{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);background:#f8f9fa;flex-wrap:wrap;align-items:center}
+    .modal-bar h3{font-size:14px;font-weight:700;color:var(--navy);margin-right:auto}
+    .modal-body{padding:16px;overflow-y:auto;max-height:75vh}
 
-    /* ── Misc ── */
-    .page-title { font-size:20px; font-weight:700; color:var(--navy); margin-bottom:16px; }
-    .back-link { display:inline-flex; align-items:center; gap:5px; background:none; border:none; color:var(--text-muted); font-size:13px; cursor:pointer; padding:0 0 14px; }
-    .back-link:hover { color:var(--navy); }
-    .action-row { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
-    .empty-state { text-align:center; padding:40px 20px; color:var(--text-muted); }
-    .empty-state .icon { font-size:40px; margin-bottom:10px; }
-    .empty-state p { font-size:14px; }
-    .separator { border:none; border-top:1px solid var(--border); margin:16px 0; }
+    /* Preview sheet (the actual printed look) */
+    #preview-sheet{background:#fff;padding:24px;font-family:Arial,Helvetica,sans-serif;color:#000;max-width:700px;margin:0 auto}
+    .ps-header{background:#1a3a5c;color:#fff;text-align:center;padding:12px 16px;margin-bottom:16px;border-radius:4px}
+    .ps-header h2{font-size:16px;font-weight:700;margin-bottom:2px}
+    .ps-header p{font-size:11px;opacity:.85;text-transform:uppercase;letter-spacing:1px}
+    .ps-info{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;margin-bottom:16px;font-size:13px;border:1px solid #ddd;border-radius:4px;padding:12px 14px;background:#f8fafc}
+    .ps-info-row{display:flex;gap:6px}
+    .ps-info-lbl{font-weight:700;min-width:100px;color:#444}
+    table.ps-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px}
+    table.ps-table thead tr{background:#1a3a5c}
+    table.ps-table th{color:#fff;padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+    table.ps-table tbody tr:nth-child(even){background:#f5f7fa}
+    table.ps-table td{padding:8px 10px;border-bottom:1px solid #e8ecf0}
+    .ps-footer{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px;font-size:13px;border-top:2px solid #1a3a5c;padding-top:14px}
+    .ps-footer-lbl{font-weight:700;color:#444;margin-bottom:4px}
+    .ps-sig-img{max-height:60px;border-bottom:1px solid #999;display:block;min-width:160px}
+    .ps-remarks{margin-top:14px;font-size:13px;padding:10px 12px;background:#f8fafc;border:1px solid #ddd;border-radius:4px}
+    .ps-remarks-lbl{font-weight:700;margin-bottom:4px}
+    .ps-generated{text-align:center;font-size:10px;color:#aaa;margin-top:14px;border-top:1px solid #f0f0f0;padding-top:10px}
 
-    @media(max-width:600px) {
-      .main { padding:10px; }
-      .container { padding:14px; border-radius:8px; }
-      .form-row { grid-template-columns:1fr; gap:0; }
-      .stats-row { grid-template-columns:1fr 1fr 1fr; }
-      .stat-num { font-size:22px; }
-      .today-date { font-size:18px; }
-      .record-card { flex-direction:column; gap:6px; }
-      .record-card-right { text-align:left; }
+    /* Misc */
+    .page-title{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:16px}
+    .back-link{display:inline-flex;align-items:center;gap:5px;background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;padding:0 0 14px}
+    .back-link:hover{color:var(--navy)}
+    .action-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+    .sep{border:none;border-top:1px solid var(--border);margin:16px 0}
+    .empty{text-align:center;padding:36px 20px;color:var(--muted)}
+    .empty .icon{font-size:38px;margin-bottom:10px}
+
+    /* Toast */
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a2e;color:#fff;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;min-width:180px;text-align:center}
+    .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+    .toast.ok{background:var(--green)}
+    .toast.err{background:var(--red)}
+
+    @media(max-width:600px){
+      .main{padding:10px}.container{padding:14px;border-radius:8px}
+      .form-row{grid-template-columns:1fr;gap:0}
+      .stats-row{grid-template-columns:repeat(3,1fr)}
+      .stat-num{font-size:20px}
+      .rec-card{flex-direction:column;gap:6px}.rec-card-right{text-align:left}
+      .ps-info{grid-template-columns:1fr}
+      .ps-footer{grid-template-columns:1fr}
+      .modal-bar{gap:6px}
     }
   </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- Header -->
   <header class="header">
     <button class="menu-btn" onclick="toggleMenu()">☰</button>
     <div class="header-title">Eurolux Site Attendance</div>
     <div class="header-sub">Doors &amp; Windows L.L.C.</div>
-    <div class="sync-indicator" id="sync-indicator">
+    <div class="sync-ind">
       <div class="sync-dot" id="sync-dot"></div>
-      <span id="sync-label">Live</span>
+      <span id="sync-lbl">Live</span>
     </div>
   </header>
 
   <!-- Side menu -->
   <div id="side-menu" class="side-menu">
-    <div class="menu-header">
-      <h3>🏗️ Eurolux Attendance</h3>
-      <p>Site Management System</p>
-    </div>
-    <div class="menu-section-label">Main</div>
-    <button class="menu-item active" onclick="closeMenu(); showView('home');" id="mi-home">🏠 Dashboard</button>
-    <button class="menu-item" onclick="closeMenu(); openNewRecord();" id="mi-new">➕ New Record</button>
-    <hr class="menu-divider">
-    <div class="menu-section-label">Data</div>
-    <button class="menu-item" onclick="closeMenu(); showView('history');" id="mi-history">📋 Attendance History</button>
-    <button class="menu-item" onclick="closeMenu(); showView('employees');" id="mi-employees">👷 Manage Employees</button>
-    <hr class="menu-divider">
-    <button class="menu-item" onclick="closeMenu(); syncNow();" style="color:var(--blue)">🔄 Sync Now</button>
+    <div class="menu-hdr"><h3>🏗️ Eurolux Attendance</h3><p>Site Management System</p></div>
+    <div class="menu-sec">Main</div>
+    <button class="menu-item active" id="mi-home" onclick="closeMenu();showView('home')">🏠 Dashboard</button>
+    <button class="menu-item" id="mi-new" onclick="closeMenu();openNewRecord()">➕ New Record</button>
+    <hr class="menu-div">
+    <div class="menu-sec">Data</div>
+    <button class="menu-item" id="mi-history" onclick="closeMenu();showView('history')">📋 Attendance History</button>
+    <button class="menu-item" id="mi-employees" onclick="closeMenu();showView('employees')">👷 Manage Employees</button>
+    <hr class="menu-div">
+    <button class="menu-item" onclick="closeMenu();syncNow()" style="color:var(--blue)">🔄 Sync Now</button>
   </div>
-  <div id="menu-overlay" class="menu-overlay" onclick="closeMenu()"></div>
+  <div id="overlay" class="overlay" onclick="closeMenu()"></div>
 
   <!-- Navbar -->
   <nav class="navbar">
-    <button onclick="showView('home')" id="btn-home" class="active">🏠 Home</button>
-    <button onclick="openNewRecord()" id="btn-new">➕ New Record</button>
-    <button onclick="showView('history')" id="btn-history">📋 History</button>
-    <button onclick="showView('employees')" id="btn-employees">👷 Employees</button>
+    <button id="btn-home" class="active" onclick="showView('home')">🏠 Home</button>
+    <button id="btn-new" onclick="openNewRecord()">➕ New Record</button>
+    <button id="btn-history" onclick="showView('history')">📋 History</button>
+    <button id="btn-employees" onclick="showView('employees')">👷 Employees</button>
   </nav>
 
   <main class="main">
 
-    <!-- HOME VIEW -->
+    <!-- HOME -->
     <div id="home-view" class="container active">
       <div class="today-banner">
         <div class="today-date" id="today-date">—</div>
         <div class="today-sub">Today's Overview</div>
       </div>
-      <button class="new-record-btn" onclick="openNewRecord()">
-        ➕ New Attendance Record
-      </button>
+      <button class="new-rec-btn" onclick="openNewRecord()">➕ New Attendance Record</button>
       <div class="stats-row">
-        <div class="stat-box">
-          <div class="stat-num" id="dash-today">0</div>
-          <div class="stat-lbl">Today's Records</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-num" id="dash-employees-today">0</div>
-          <div class="stat-lbl">On Site Today</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-num" id="dash-total">0</div>
-          <div class="stat-lbl">Total Records</div>
-        </div>
+        <div class="stat-box"><div class="stat-num" id="d-today">0</div><div class="stat-lbl">Today</div></div>
+        <div class="stat-box"><div class="stat-num" id="d-onsite">0</div><div class="stat-lbl">On Site</div></div>
+        <div class="stat-box"><div class="stat-num" id="d-total">0</div><div class="stat-lbl">All Records</div></div>
       </div>
-      <div class="section-hdr">Today's Records</div>
-      <div id="today-records"></div>
-      <div class="section-hdr" style="margin-top:20px">Recent Records</div>
-      <div id="recent-records"></div>
+      <div class="sec-hdr">Today's Records</div>
+      <div id="today-recs"></div>
+      <div class="sec-hdr" style="margin-top:20px">Recent Records</div>
+      <div id="recent-recs"></div>
     </div>
 
-    <!-- NEW / EDIT RECORD VIEW -->
+    <!-- NEW / EDIT RECORD -->
     <div id="record-view" class="container">
       <button class="back-link" onclick="showView('home')">← Back</button>
-      <div class="page-title" id="record-view-title">New Attendance Record</div>
+      <div class="page-title" id="rec-title">New Attendance Record</div>
 
       <div class="form-row">
         <div class="form-group">
@@ -265,840 +261,747 @@
           <input type="date" class="form-control" id="rec-date">
         </div>
         <div class="form-group">
-          <label>Team Leader *</label>
-          <input type="text" class="form-control" id="rec-leader" list="leaders-list" placeholder="Select or type name" autocomplete="off">
-          <datalist id="leaders-list"></datalist>
+          <label>Project Name *</label>
+          <input type="text" class="form-control" id="rec-project" list="proj-dl" placeholder="e.g. Villa Al Manara" autocomplete="off">
+          <datalist id="proj-dl"></datalist>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Project Name *</label>
-          <input type="text" class="form-control" id="rec-project" list="projects-list" placeholder="e.g. Villa Al Manara" autocomplete="off">
-          <datalist id="projects-list"></datalist>
+          <label>Project Location</label>
+          <input type="text" class="form-control" id="rec-location" list="loc-dl" placeholder="e.g. Dubai Marina" autocomplete="off">
+          <datalist id="loc-dl"></datalist>
         </div>
         <div class="form-group">
-          <label>Project Location</label>
-          <input type="text" class="form-control" id="rec-location" list="locations-list" placeholder="e.g. Dubai Marina" autocomplete="off">
-          <datalist id="locations-list"></datalist>
+          <label>Team Leader *</label>
+          <input type="text" class="form-control" id="rec-leader" list="leader-dl" placeholder="Select or type name" autocomplete="off" oninput="onLeaderChange()">
+          <datalist id="leader-dl"></datalist>
         </div>
       </div>
 
-      <div class="section-hdr">👷 Employee Attendance</div>
+      <!-- SIGNATURE PAD -->
+      <div class="form-group">
+        <label>Team Leader Signature</label>
+        <div class="sig-box" id="sig-box">
+          <canvas id="sig-canvas"></canvas>
+          <div class="sig-box-label" id="sig-placeholder">Draw signature here</div>
+        </div>
+        <div class="sig-actions">
+          <button class="btn btn-outline btn-sm" onclick="sigPad.clear()">✕ Clear</button>
+          <span class="sig-info" id="sig-info"></span>
+        </div>
+      </div>
+
+      <hr class="sep">
+      <div class="sec-hdr">👷 Employee Attendance</div>
       <div class="entry-wrap">
         <table class="entries" id="entries-table">
-          <thead>
-            <tr>
-              <th style="width:36px">#</th>
-              <th>Employee Name</th>
-              <th style="width:120px">Time In</th>
-              <th style="width:120px">Time Out</th>
-              <th style="width:40px"></th>
-            </tr>
-          </thead>
+          <thead><tr>
+            <th style="width:36px">#</th>
+            <th>Employee Name</th>
+            <th style="width:120px">Time In</th>
+            <th style="width:120px">Time Out</th>
+            <th style="width:40px"></th>
+          </tr></thead>
           <tbody id="entries-body"></tbody>
         </table>
       </div>
       <button class="add-row-btn" onclick="addEntryRow()">+ Add Employee</button>
 
-      <hr class="separator">
+      <hr class="sep">
       <div class="form-group">
         <label>Remarks</label>
-        <textarea class="form-control" id="rec-remarks" rows="3" placeholder="Any observations, notes, or issues..."></textarea>
+        <textarea class="form-control" id="rec-remarks" rows="3" placeholder="Observations, notes, issues..."></textarea>
       </div>
-
       <div class="action-row" style="margin-top:4px">
-        <button class="btn btn-primary" onclick="saveRecord()">💾 Save Record</button>
-        <button class="btn btn-success" onclick="saveAndExport()">📄 Save &amp; Export PDF</button>
+        <button class="btn btn-primary" onclick="saveRecord(false)">💾 Save</button>
+        <button class="btn btn-success" onclick="saveRecord(true)">👁️ Save &amp; Preview</button>
         <button class="btn btn-secondary" onclick="showView('home')">Cancel</button>
       </div>
     </div>
 
-    <!-- HISTORY VIEW -->
+    <!-- HISTORY -->
     <div id="history-view" class="container">
       <div class="page-title">📋 Attendance History</div>
       <div class="filter-bar">
-        <input type="text" id="hist-search" placeholder="🔍 Project, location, team leader..." oninput="renderHistory()">
+        <input type="text" id="hist-q" placeholder="🔍 Project, location, leader..." oninput="renderHistory()">
         <input type="month" id="hist-month" onchange="renderHistory()">
-        <button class="btn btn-outline btn-sm" onclick="document.getElementById('hist-month').value=''; renderHistory()">All</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('hist-month').value='';renderHistory()">All</button>
       </div>
       <div id="history-list"></div>
     </div>
 
-    <!-- RECORD DETAIL VIEW -->
+    <!-- DETAIL -->
     <div id="detail-view" class="container">
-      <button class="back-link" onclick="showView('history')">← Back to History</button>
+      <button class="back-link" id="detail-back" onclick="showView('history')">← Back</button>
       <div id="detail-content"></div>
     </div>
 
-    <!-- EMPLOYEES VIEW -->
+    <!-- EMPLOYEES -->
     <div id="employees-view" class="container">
       <div class="page-title">👷 Employee List</div>
       <div class="action-row">
-        <button class="btn btn-primary btn-sm" onclick="promptAddEmployee()">+ Add Employee</button>
+        <button class="btn btn-primary btn-sm" onclick="promptAddEmp()">+ Add Employee</button>
       </div>
       <div class="filter-bar">
-        <input type="text" id="emp-search" placeholder="🔍 Search employees..." oninput="renderEmployees()">
+        <input type="text" id="emp-q" placeholder="🔍 Search..." oninput="renderEmployees()">
       </div>
-      <div id="employees-list" style="border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;"></div>
+      <div id="emp-list" style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden"></div>
     </div>
 
   </main>
 
-  <footer style="background:#f0f0f0; border-top:1px solid #e0e0e0; padding:10px; text-align:center; font-size:11px; color:#999;">
-    Eurolux Site Attendance v1.0 · Data synced to Supabase
+  <footer style="background:#f0f0f0;border-top:1px solid #e0e0e0;padding:10px;text-align:center;font-size:11px;color:#999">
+    Eurolux Site Attendance v2.0 · Synced via Supabase
   </footer>
+</div>
+
+<!-- PREVIEW MODAL -->
+<div id="preview-modal" class="modal-bg">
+  <div class="modal-wrap">
+    <div class="modal-bar">
+      <h3>📄 Attendance Sheet Preview</h3>
+      <button class="btn btn-primary btn-sm" onclick="exportPDF()">📄 Download PDF</button>
+      <button class="btn btn-amber btn-sm" onclick="exportJPEG()">🖼️ Save as JPEG</button>
+      <button class="btn btn-secondary btn-sm" onclick="closePreview()">✕ Close</button>
+    </div>
+    <div class="modal-body">
+      <!-- The preview sheet — this is what gets captured -->
+      <div id="preview-sheet">
+        <div class="ps-header">
+          <h2>EUROLUX DOORS AND WINDOWS L.L.C.</h2>
+          <p>Site Attendance</p>
+        </div>
+        <div class="ps-info">
+          <div class="ps-info-row"><span class="ps-info-lbl">Date:</span><span id="ps-date">—</span></div>
+          <div class="ps-info-row"><span class="ps-info-lbl">Team Leader:</span><span id="ps-leader">—</span></div>
+          <div class="ps-info-row"><span class="ps-info-lbl">Project:</span><span id="ps-project">—</span></div>
+          <div class="ps-info-row"><span class="ps-info-lbl">Location:</span><span id="ps-location">—</span></div>
+        </div>
+        <table class="ps-table">
+          <thead><tr>
+            <th style="width:36px">No.</th>
+            <th>Employee Name</th>
+            <th style="width:100px">Time In</th>
+            <th style="width:100px">Time Out</th>
+          </tr></thead>
+          <tbody id="ps-entries"></tbody>
+        </table>
+        <div class="ps-footer">
+          <div>
+            <div class="ps-footer-lbl">Team Leader</div>
+            <div id="ps-leader-name" style="font-size:14px;margin-bottom:8px">—</div>
+            <div class="ps-footer-lbl" style="margin-bottom:4px">Signature</div>
+            <img id="ps-sig-img" class="ps-sig-img" src="" alt="" style="display:none">
+            <div id="ps-sig-empty" style="height:50px;border-bottom:1px solid #999;width:160px;font-size:11px;color:#bbb;padding-top:32px">No signature</div>
+          </div>
+          <div>
+            <div class="ps-footer-lbl">Date</div>
+            <div id="ps-date2" style="font-size:14px;margin-bottom:16px">—</div>
+            <div class="ps-footer-lbl">Total Employees</div>
+            <div id="ps-count" style="font-size:22px;font-weight:800;color:#1a3a5c">0</div>
+          </div>
+        </div>
+        <div class="ps-remarks" id="ps-remarks-box" style="display:none">
+          <div class="ps-remarks-lbl">Remarks</div>
+          <div id="ps-remarks"></div>
+        </div>
+        <div class="ps-generated" id="ps-generated"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════
-// SUPABASE CONFIG
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// CONFIG & STATE
+// ═══════════════════════════════════════════════
 const SUPABASE_URL = 'https://tyhybxxbhgyuswlizrmc.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5aHlieHhiaGd5dXN3bGl6cm1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMDY0MzQsImV4cCI6MjA5NjU4MjQzNH0.2kz4T1qcreDeZXhs4AJDwx8Ur-Tpww6oRB5z3jDv4Es';
 
-// ═══════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════
 let records   = JSON.parse(localStorage.getItem('att_records')   || '[]');
 let employees = JSON.parse(localStorage.getItem('att_employees') || '[]');
-let currentRecord = null; // record being edited (null = new)
+let currentRecord = null;
 let entryCounter  = 0;
+let previewRecord = null; // record currently shown in preview
 
-// ═══════════════════════════════════════════════════════
-// SUPABASE HELPERS
-// ═══════════════════════════════════════════════════════
-function toLower(obj) {
+// ═══════════════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════════════
+function toLow(obj) {
   if (!obj || typeof obj !== 'object') return obj;
-  const n = {};
-  for (const k in obj) n[k.toLowerCase()] = obj[k];
-  return n;
+  const n = {}; for (const k in obj) n[k.toLowerCase()] = obj[k]; return n;
 }
-
-function toCamel(obj) {
+function toCam(obj) {
   if (!obj || typeof obj !== 'object') return obj;
-  const map = {
-    projectlocation:'projectLocation', teamleader:'teamLeader',
-    submittedat:'submittedAt', createdat:'createdAt'
-  };
-  const n = {};
-  for (const k in obj) n[map[k] || k] = obj[k];
-  return n;
+  const m = { projectlocation:'projectLocation', teamleader:'teamLeader',
+              submittedat:'submittedAt', createdat:'createdAt',
+              teamleadersignature:'teamLeaderSignature' };
+  const n = {}; for (const k in obj) n[m[k]||k] = obj[k]; return n;
 }
-
-async function sbCall(table, method, data = null, id = null) {
+async function sb(table, method, data=null, id=null) {
   try {
     let url = `${SUPABASE_URL}/rest/v1/${table}`;
-    const opts = {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      }
-    };
-    if (method === 'GET') { url += '?select=*&order=createdat.desc'; opts.method = 'GET'; }
-    else if (method === 'UPSERT') {
-      opts.method = 'POST';
-      opts.headers['Prefer'] = 'resolution=merge-duplicates,return=representation';
-      opts.body = JSON.stringify(Array.isArray(data) ? data.map(toLower) : toLower(data));
+    const o = { headers: { 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}`,
+                            'Content-Type':'application/json', 'Prefer':'return=representation' } };
+    if (method==='GET')    { url+='?select=*&order=createdat.desc'; o.method='GET'; }
+    else if (method==='UPSERT') {
+      o.method='POST'; o.headers['Prefer']='resolution=merge-duplicates,return=representation';
+      o.body=JSON.stringify(Array.isArray(data)?data.map(toLow):toLow(data));
     }
-    else if (method === 'DELETE') { url += `?id=eq.${id}`; opts.method = 'DELETE'; }
-    const res  = await fetch(url, opts);
-    const text = await res.text();
-    if (res.ok) return method === 'DELETE' ? true : (text ? JSON.parse(text) : []);
-    console.warn(`Supabase ${method} ${table}:`, res.status, text.slice(0, 200));
-    return null;
-  } catch (e) { console.warn('Supabase error:', e.message); return null; }
+    else if (method==='DELETE') { url+=`?id=eq.${id}`; o.method='DELETE'; }
+    const r=await fetch(url,o), t=await r.text();
+    if (r.ok) return method==='DELETE'?true:(t?JSON.parse(t):[]);
+    console.warn(`SB ${method} ${table}:`,r.status,t.slice(0,200)); return null;
+  } catch(e) { console.warn('SB err:',e.message); return null; }
 }
 
 async function loadFromSupabase() {
   setSyncStatus('syncing');
   try {
-    const [recData, empData] = await Promise.all([
-      sbCall('attendance_records',   'GET'),
-      sbCall('attendance_employees', 'GET')
-    ]);
-
-    if (recData?.length) {
-      const remote    = recData.map(r => {
-        const c = toCamel(r);
-        if (typeof c.entries === 'string') { try { c.entries = JSON.parse(c.entries); } catch { c.entries = []; } }
-        if (!Array.isArray(c.entries)) c.entries = [];
-        return c;
-      });
-      const remoteIds = new Set(remote.map(r => r.id));
-      const localOnly = records.filter(r => !remoteIds.has(r.id));
-      records = [...remote, ...localOnly];
-      localStorage.setItem('att_records', JSON.stringify(records));
+    const [rd, ed] = await Promise.all([sb('attendance_records','GET'), sb('attendance_employees','GET')]);
+    if (rd?.length) {
+      const remote = rd.map(r=>{ const c=toCam(r);
+        if (typeof c.entries==='string'){try{c.entries=JSON.parse(c.entries)}catch{c.entries=[]}}
+        if (!Array.isArray(c.entries)) c.entries=[];
+        return c; });
+      const ids=new Set(remote.map(r=>r.id));
+      records=[...remote,...records.filter(r=>!ids.has(r.id))];
+      localStorage.setItem('att_records',JSON.stringify(records));
     }
-
-    if (empData?.length) {
-      const remote    = empData.map(toCamel);
-      const remoteIds = new Set(remote.map(e => e.id));
-      const localOnly = employees.filter(e => !remoteIds.has(e.id));
-      employees = [...remote, ...localOnly];
-      localStorage.setItem('att_employees', JSON.stringify(employees));
+    if (ed?.length) {
+      const remote=ed.map(toCam);
+      const ids=new Set(remote.map(e=>e.id));
+      employees=[...remote,...employees.filter(e=>!ids.has(e.id))];
+      localStorage.setItem('att_employees',JSON.stringify(employees));
     }
-
-    setSyncStatus('live');
-    updateDatalist();
-    renderDashboard();
-    return true;
-  } catch (e) {
-    setSyncStatus('offline');
-    return false;
-  }
+    setSyncStatus('live'); updateDatalists(); renderDashboard(); return true;
+  } catch(e) { setSyncStatus('offline'); return false; }
 }
-
 async function syncNow() {
-  setSyncStatus('syncing');
-  await loadFromSupabase();
-  renderDashboard();
-  showToast('Synced with server', 'success');
+  await loadFromSupabase(); renderDashboard(); showToast('Synced ✓','ok');
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // UI HELPERS
-// ═══════════════════════════════════════════════════════
-function todayStr() {
-  return new Date().toISOString().slice(0, 10);
-}
-
+// ═══════════════════════════════════════════════
+const today=()=>new Date().toISOString().slice(0,10);
 function fmtDate(d) {
   if (!d) return '—';
-  const dt = new Date(d + 'T00:00:00');
-  return dt.toLocaleDateString('en-GB', { weekday:'short', day:'2-digit', month:'short', year:'numeric' });
+  return new Date(d+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
 }
-
 function fmtTime(t) {
   if (!t) return '—';
-  const [h, m] = t.split(':');
-  const hr = parseInt(h);
-  return `${hr > 12 ? hr - 12 : hr || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
+  const [h,m]=t.split(':'); const hr=parseInt(h);
+  return `${hr>12?hr-12:hr||12}:${m} ${hr>=12?'PM':'AM'}`;
 }
-
-function currentTime() {
-  const now = new Date();
-  return `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+function showToast(msg,type='') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast on '+(type||'');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),3000);
 }
-
+function setSyncStatus(s) {
+  const dot=document.getElementById('sync-dot'), lbl=document.getElementById('sync-lbl');
+  if (s==='syncing'){dot.style.background='#fbbf24';lbl.textContent='Syncing…'}
+  else if(s==='live'){dot.style.background='#4ade80';lbl.textContent='Live'}
+  else {dot.style.background='#f87171';lbl.textContent='Offline'}
+}
 function showView(v) {
-  document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-  document.getElementById(v + '-view').classList.add('active');
-  document.querySelectorAll('.navbar button').forEach(b => b.classList.remove('active'));
-  const nb = document.getElementById('btn-' + v);
-  if (nb) nb.classList.add('active');
-  // Update side menu active state
-  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-  const mi = document.getElementById('mi-' + v);
-  if (mi) mi.classList.add('active');
-  // Render correct view
-  if (v === 'home')      renderDashboard();
-  if (v === 'history')   renderHistory();
-  if (v === 'employees') renderEmployees();
+  document.querySelectorAll('.container').forEach(c=>c.classList.remove('active'));
+  document.getElementById(v+'-view').classList.add('active');
+  document.querySelectorAll('.navbar button').forEach(b=>b.classList.remove('active'));
+  const nb=document.getElementById('btn-'+v); if(nb) nb.classList.add('active');
+  document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('active'));
+  const mi=document.getElementById('mi-'+v); if(mi) mi.classList.add('active');
+  if(v==='home')      renderDashboard();
+  if(v==='history')   renderHistory();
+  if(v==='employees') renderEmployees();
 }
+function toggleMenu(){document.getElementById('side-menu').classList.toggle('open');document.getElementById('overlay').classList.toggle('show')}
+function closeMenu(){document.getElementById('side-menu').classList.remove('open');document.getElementById('overlay').classList.remove('show')}
 
-function showToast(msg, type = '') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast visible ' + type;
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('visible'), 3000);
-}
-
-function setSyncStatus(state) {
-  const dot = document.getElementById('sync-dot');
-  const lbl = document.getElementById('sync-label');
-  if (state === 'syncing') {
-    dot.style.background = '#fbbf24';
-    lbl.textContent = 'Syncing…';
-  } else if (state === 'live') {
-    dot.style.background = '#4ade80';
-    lbl.textContent = 'Live';
-  } else {
-    dot.style.background = '#f87171';
-    lbl.textContent = 'Offline';
+// ═══════════════════════════════════════════════
+// SIGNATURE PAD
+// ═══════════════════════════════════════════════
+const sigPad = {
+  canvas:null, ctx:null, drawing:false, empty:true, _dpr:1,
+  init() {
+    this.canvas=document.getElementById('sig-canvas');
+    if (!this.canvas) return;
+    this._dpr=window.devicePixelRatio||1;
+    const w=this.canvas.offsetWidth||500, h=130;
+    this.canvas.width=w*this._dpr; this.canvas.height=h*this._dpr;
+    this.ctx=this.canvas.getContext('2d');
+    this.ctx.scale(this._dpr,this._dpr);
+    this.ctx.strokeStyle='#1a3a5c'; this.ctx.lineWidth=2.2;
+    this.ctx.lineCap='round'; this.ctx.lineJoin='round';
+    this.clear();
+    // Mouse
+    this.canvas.addEventListener('mousedown',e=>this._start(e));
+    this.canvas.addEventListener('mousemove',e=>this._move(e));
+    this.canvas.addEventListener('mouseup',  ()=>this._stop());
+    this.canvas.addEventListener('mouseleave',()=>this._stop());
+    // Touch
+    this.canvas.addEventListener('touchstart',e=>{e.preventDefault();this._start(e.touches[0])},{passive:false});
+    this.canvas.addEventListener('touchmove', e=>{e.preventDefault();this._move(e.touches[0])},{passive:false});
+    this.canvas.addEventListener('touchend',  ()=>this._stop());
+  },
+  _pos(e){const r=this.canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}},
+  _start(e){this.drawing=true;const p=this._pos(e);this.ctx.beginPath();this.ctx.moveTo(p.x,p.y)},
+  _move(e){if(!this.drawing)return;const p=this._pos(e);this.ctx.lineTo(p.x,p.y);this.ctx.stroke();
+    this.empty=false;document.getElementById('sig-placeholder').style.display='none'},
+  _stop(){this.drawing=false;this.ctx.beginPath()},
+  clear(){
+    if(!this.ctx)return;
+    const w=this.canvas.width/this._dpr, h=this.canvas.height/this._dpr;
+    this.ctx.fillStyle='#fff';this.ctx.fillRect(0,0,w,h);
+    this.empty=true;document.getElementById('sig-placeholder').style.display='block';
+    document.getElementById('sig-info').textContent='';
+  },
+  getDataURL(){return this.empty?null:this.canvas.toDataURL('image/png')},
+  load(dataURL){
+    if(!dataURL||!this.ctx){this.clear();return}
+    const img=new Image();
+    img.onload=()=>{
+      const w=this.canvas.width/this._dpr, h=this.canvas.height/this._dpr;
+      this.ctx.fillStyle='#fff';this.ctx.fillRect(0,0,w,h);
+      this.ctx.drawImage(img,0,0,w,h);
+      this.empty=false;document.getElementById('sig-placeholder').style.display='none';
+    };
+    img.src=dataURL;
   }
+};
+
+function onLeaderChange() {
+  const name=(document.getElementById('rec-leader').value||'').trim();
+  clearTimeout(onLeaderChange._t);
+  onLeaderChange._t=setTimeout(()=>{
+    const emp=employees.find(e=>e.name.toLowerCase()===name.toLowerCase());
+    if (emp?.signature) {
+      sigPad.load(emp.signature);
+      document.getElementById('sig-info').textContent='✓ Saved signature loaded';
+    } else {
+      sigPad.clear();
+    }
+  },400);
 }
 
-function toggleMenu() {
-  document.getElementById('side-menu').classList.toggle('open');
-  document.getElementById('menu-overlay').classList.toggle('show');
-}
-function closeMenu() {
-  document.getElementById('side-menu').classList.remove('open');
-  document.getElementById('menu-overlay').classList.remove('show');
-}
-
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // EMPLOYEES
-// ═══════════════════════════════════════════════════════
-function getEmployeeNames() {
-  return employees.map(e => e.name).sort((a,b) => a.localeCompare(b));
-}
-
-function updateDatalist() {
-  const names = getEmployeeNames();
-  ['leaders-list'].forEach(id => {
-    const dl = document.getElementById(id);
-    if (dl) dl.innerHTML = names.map(n => `<option value="${n}">`).join('');
+// ═══════════════════════════════════════════════
+function updateDatalists() {
+  const names=employees.map(e=>e.name).sort((a,b)=>a.localeCompare(b));
+  ['leader-dl'].forEach(id=>{
+    const dl=document.getElementById(id);
+    if(dl) dl.innerHTML=names.map(n=>`<option value="${n}">`).join('');
   });
-  // Also refresh any existing entry row datalists
-  document.querySelectorAll('[id^="emp-dl-"]').forEach(dl => {
-    dl.innerHTML = names.map(n => `<option value="${n}">`).join('');
+  document.querySelectorAll('[id^="edl-"]').forEach(dl=>{
+    dl.innerHTML=names.map(n=>`<option value="${n}">`).join('');
   });
-  // Past project names from records
-  const projects = [...new Set(records.map(r => r.project).filter(Boolean))];
-  const pdl = document.getElementById('projects-list');
-  if (pdl) pdl.innerHTML = projects.map(p => `<option value="${p}">`).join('');
-  const locations = [...new Set(records.map(r => r.projectLocation).filter(Boolean))];
-  const ldl = document.getElementById('locations-list');
-  if (ldl) ldl.innerHTML = locations.map(l => `<option value="${l}">`).join('');
+  const projs=[...new Set(records.map(r=>r.project).filter(Boolean))];
+  const pdl=document.getElementById('proj-dl');
+  if(pdl) pdl.innerHTML=projs.map(p=>`<option value="${p}">`).join('');
+  const locs=[...new Set(records.map(r=>r.projectLocation||r.projectlocation).filter(Boolean))];
+  const ldl=document.getElementById('loc-dl');
+  if(ldl) ldl.innerHTML=locs.map(l=>`<option value="${l}">`).join('');
 }
 
 async function ensureEmployee(name) {
-  const n = (name || '').trim();
-  if (!n) return;
-  const exists = employees.some(e => e.name.toLowerCase() === n.toLowerCase());
+  const n=(name||'').trim(); if(!n) return;
+  const exists=employees.some(e=>e.name.toLowerCase()===n.toLowerCase());
   if (!exists) {
-    const emp = { id: 'emp-' + Date.now() + '-' + Math.random().toString(36).slice(2,6), name: n, createdat: new Date().toISOString() };
+    const emp={id:'emp-'+Date.now()+'-'+Math.random().toString(36).slice(2,5),name:n,createdat:new Date().toISOString()};
     employees.push(emp);
-    localStorage.setItem('att_employees', JSON.stringify(employees));
-    sbCall('attendance_employees', 'UPSERT', emp).catch(() => {});
-    updateDatalist();
+    localStorage.setItem('att_employees',JSON.stringify(employees));
+    sb('attendance_employees','UPSERT',emp).catch(()=>{});
+    updateDatalists();
   }
 }
 
 function renderEmployees() {
-  const q   = (document.getElementById('emp-search')?.value || '').toLowerCase();
-  const box = document.getElementById('employees-list');
-  const list = employees.filter(e => !q || e.name.toLowerCase().includes(q))
-                        .sort((a,b) => a.name.localeCompare(b.name));
-  if (list.length === 0) {
-    box.innerHTML = '<div class="empty-state"><div class="icon">👷</div><p>No employees yet. Add one to get started.</p></div>';
-    return;
-  }
-  box.innerHTML = list.map(e => `
-    <div class="emp-list-item">
-      <span class="emp-list-name">👤 ${e.name}</span>
-      <div class="emp-list-actions">
-        <button class="btn-icon" onclick="renameEmployee('${e.id}')" title="Rename">✏️</button>
-        <button class="btn-icon" onclick="deleteEmployee('${e.id}')" title="Remove" style="color:var(--red)">🗑️</button>
+  const q=(document.getElementById('emp-q')?.value||'').toLowerCase();
+  const list=employees.filter(e=>!q||e.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+  const box=document.getElementById('emp-list');
+  if (!list.length) { box.innerHTML='<div class="empty"><div class="icon">👷</div><p>No employees yet</p></div>'; return; }
+  box.innerHTML=list.map(e=>`
+    <div class="emp-item">
+      <div>
+        <div class="emp-name">👤 ${e.name}</div>
+        ${e.signature?'<div style="font-size:11px;color:var(--green);margin-top:2px">✓ Signature on file</div>':''}
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="btn-icon" onclick="renameEmp('${e.id}')" title="Rename">✏️</button>
+        <button class="btn-icon" onclick="deleteEmp('${e.id}')" title="Remove" style="color:var(--red)">🗑️</button>
       </div>
     </div>`).join('');
 }
 
-function promptAddEmployee() {
-  const name = prompt('Enter employee name:');
-  if (!name?.trim()) return;
-  addEmployee(name.trim());
+function promptAddEmp() {
+  const n=prompt('Enter employee name:'); if(!n?.trim()) return; addEmp(n.trim());
 }
-
-async function addEmployee(name) {
-  const n = name.trim();
-  if (!n) return;
-  if (employees.some(e => e.name.toLowerCase() === n.toLowerCase())) {
-    showToast('Employee already exists', 'error'); return;
-  }
-  const emp = { id: 'emp-' + Date.now(), name: n, createdat: new Date().toISOString() };
+async function addEmp(name) {
+  const n=name.trim();
+  if (employees.some(e=>e.name.toLowerCase()===n.toLowerCase())) { showToast('Already exists','err'); return; }
+  const emp={id:'emp-'+Date.now(),name:n,createdat:new Date().toISOString()};
   employees.push(emp);
-  localStorage.setItem('att_employees', JSON.stringify(employees));
-  await sbCall('attendance_employees', 'UPSERT', emp);
-  updateDatalist();
-  renderEmployees();
-  showToast(`${n} added`, 'success');
+  localStorage.setItem('att_employees',JSON.stringify(employees));
+  await sb('attendance_employees','UPSERT',emp);
+  updateDatalists(); renderEmployees(); showToast(n+' added','ok');
+}
+async function renameEmp(id) {
+  const e=employees.find(e=>e.id===id); if(!e) return;
+  const n=prompt('Rename:',e.name); if(!n?.trim()||n.trim()===e.name) return;
+  e.name=n.trim();
+  localStorage.setItem('att_employees',JSON.stringify(employees));
+  await sb('attendance_employees','UPSERT',e);
+  updateDatalists(); renderEmployees(); showToast('Renamed','ok');
+}
+async function deleteEmp(id) {
+  const e=employees.find(e=>e.id===id);
+  if(!e||!confirm(`Remove "${e.name}"?`)) return;
+  employees=employees.filter(x=>x.id!==id);
+  localStorage.setItem('att_employees',JSON.stringify(employees));
+  await sb('attendance_employees','DELETE',null,id);
+  updateDatalists(); renderEmployees(); showToast('Removed');
 }
 
-async function renameEmployee(id) {
-  const emp  = employees.find(e => e.id === id);
-  if (!emp) return;
-  const name = prompt('Rename employee:', emp.name);
-  if (!name?.trim() || name.trim() === emp.name) return;
-  emp.name = name.trim();
-  localStorage.setItem('att_employees', JSON.stringify(employees));
-  await sbCall('attendance_employees', 'UPSERT', emp);
-  updateDatalist();
-  renderEmployees();
-  showToast('Employee renamed', 'success');
-}
-
-async function deleteEmployee(id) {
-  const emp = employees.find(e => e.id === id);
-  if (!emp || !confirm(`Remove "${emp.name}" from the list?`)) return;
-  employees = employees.filter(e => e.id !== id);
-  localStorage.setItem('att_employees', JSON.stringify(employees));
-  await sbCall('attendance_employees', 'DELETE', null, id);
-  updateDatalist();
-  renderEmployees();
-  showToast('Employee removed');
-}
-
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // ENTRY ROWS
-// ═══════════════════════════════════════════════════════
-function addEntryRow(data = {}) {
+// ═══════════════════════════════════════════════
+function addEntryRow(data={}) {
   entryCounter++;
-  const rowId   = 'row-' + entryCounter;
-  const dlId    = 'emp-dl-' + entryCounter;
-  const names   = getEmployeeNames();
-  const dlHtml  = names.map(n => `<option value="${n}">`).join('');
-  const timeIn  = data.timein  || data.timeIn  || '';
-  const timeOut = data.timeout || data.timeOut || '';
-  const empName = data.employeename || data.employeeName || '';
-  const tbody   = document.getElementById('entries-body');
-  const rowNum  = tbody.rows.length + 1;
-  const tr = document.createElement('tr');
-  tr.id   = rowId;
-  tr.innerHTML = `
-    <td class="entry-num">${rowNum}</td>
-    <td><input type="text" class="entry-input" list="${dlId}" placeholder="Employee name" value="${empName}" autocomplete="off"><datalist id="${dlId}">${dlHtml}</datalist></td>
-    <td><input type="time" class="entry-input" value="${timeIn}"></td>
-    <td><input type="time" class="entry-input" value="${timeOut}"></td>
-    <td><button class="btn-icon" onclick="removeEntryRow('${rowId}')" title="Remove" style="color:var(--red)">✕</button></td>`;
+  const rid='row-'+entryCounter, dlid='edl-'+entryCounter;
+  const names=employees.map(e=>e.name).sort((a,b)=>a.localeCompare(b));
+  const tbody=document.getElementById('entries-body');
+  const num=tbody.rows.length+1;
+  const tr=document.createElement('tr'); tr.id=rid;
+  tr.innerHTML=`
+    <td style="color:#aaa;font-size:12px;font-weight:700;text-align:center;width:32px">${num}</td>
+    <td><input type="text" class="entry-input" list="${dlid}" placeholder="Employee name"
+        value="${data.employeeName||data.employeename||''}" autocomplete="off">
+        <datalist id="${dlid}">${names.map(n=>`<option value="${n}">`).join('')}</datalist></td>
+    <td><input type="time" class="entry-input" value="${data.timeIn||data.timein||''}"></td>
+    <td><input type="time" class="entry-input" value="${data.timeOut||data.timeout||''}"></td>
+    <td><button class="btn-icon" onclick="removeRow('${rid}')" style="color:var(--red)">✕</button></td>`;
   tbody.appendChild(tr);
-  // Re-number all rows
-  reNumberRows();
 }
-
-function removeEntryRow(rowId) {
-  const row = document.getElementById(rowId);
-  if (row) { row.remove(); reNumberRows(); }
-}
-
-function reNumberRows() {
-  document.querySelectorAll('#entries-body tr').forEach((tr, i) => {
-    const numCell = tr.querySelector('.entry-num');
-    if (numCell) numCell.textContent = i + 1;
+function removeRow(id){const r=document.getElementById(id);if(r){r.remove();renum()}}
+function renum(){document.querySelectorAll('#entries-body tr').forEach((tr,i)=>{const c=tr.querySelector('td:first-child');if(c)c.textContent=i+1})}
+function getEntries(){
+  const out=[];
+  document.querySelectorAll('#entries-body tr').forEach(tr=>{
+    const ins=tr.querySelectorAll('input');
+    if(ins.length>=3&&ins[0].value.trim())
+      out.push({employeeName:ins[0].value.trim(),timeIn:ins[1].value,timeOut:ins[2].value});
   });
+  return out;
 }
 
-function getEntries() {
-  const entries = [];
-  document.querySelectorAll('#entries-body tr').forEach(tr => {
-    const inputs = tr.querySelectorAll('input');
-    if (inputs.length >= 3) {
-      const name = inputs[0].value.trim();
-      if (name) {
-        entries.push({ employeeName: name, timeIn: inputs[1].value, timeOut: inputs[2].value });
-      }
-    }
-  });
-  return entries;
-}
-
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // RECORDS
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function openNewRecord() {
-  currentRecord = null;
-  document.getElementById('record-view-title').textContent = 'New Attendance Record';
-  document.getElementById('rec-date').value     = todayStr();
-  document.getElementById('rec-leader').value   = '';
-  document.getElementById('rec-project').value  = '';
-  document.getElementById('rec-location').value = '';
-  document.getElementById('rec-remarks').value  = '';
-  document.getElementById('entries-body').innerHTML = '';
-  entryCounter = 0;
-  // Add 3 blank rows by default
-  addEntryRow();
-  addEntryRow();
-  addEntryRow();
+  currentRecord=null;
+  document.getElementById('rec-title').textContent='New Attendance Record';
+  document.getElementById('rec-date').value=today();
+  document.getElementById('rec-leader').value='';
+  document.getElementById('rec-project').value='';
+  document.getElementById('rec-location').value='';
+  document.getElementById('rec-remarks').value='';
+  document.getElementById('entries-body').innerHTML='';
+  entryCounter=0;
   showView('record');
   document.getElementById('btn-new').classList.add('active');
+  setTimeout(()=>{sigPad.init();sigPad.clear();addEntryRow();addEntryRow();addEntryRow();},100);
 }
 
 function openEditRecord(id) {
-  const rec = records.find(r => r.id === id);
-  if (!rec) return;
-  currentRecord = rec;
-  document.getElementById('record-view-title').textContent = 'Edit Attendance Record';
-  document.getElementById('rec-date').value     = rec.date     || todayStr();
-  document.getElementById('rec-leader').value   = rec.teamLeader || rec.teamleader || '';
-  document.getElementById('rec-project').value  = rec.project  || '';
-  document.getElementById('rec-location').value = rec.projectLocation || rec.projectlocation || '';
-  document.getElementById('rec-remarks').value  = rec.remarks  || '';
-  document.getElementById('entries-body').innerHTML = '';
-  entryCounter = 0;
-  const entries = rec.entries || [];
-  if (entries.length > 0) {
-    entries.forEach(e => addEntryRow(e));
-  } else {
-    addEntryRow(); addEntryRow(); addEntryRow();
-  }
+  const rec=records.find(r=>r.id===id); if(!rec) return;
+  currentRecord=rec;
+  document.getElementById('rec-title').textContent='Edit Attendance Record';
+  document.getElementById('rec-date').value=rec.date||today();
+  document.getElementById('rec-leader').value=rec.teamLeader||rec.teamleader||'';
+  document.getElementById('rec-project').value=rec.project||'';
+  document.getElementById('rec-location').value=rec.projectLocation||rec.projectlocation||'';
+  document.getElementById('rec-remarks').value=rec.remarks||'';
+  document.getElementById('entries-body').innerHTML='';
+  entryCounter=0;
   showView('record');
+  setTimeout(()=>{
+    sigPad.init();
+    const sig=rec.teamLeaderSignature||rec.teamleadersignature;
+    if(sig) sigPad.load(sig);
+    else sigPad.clear();
+    const entries=Array.isArray(rec.entries)?rec.entries:[];
+    entries.length?entries.forEach(e=>addEntryRow(e)):(addEntryRow(),addEntryRow(),addEntryRow());
+  },100);
 }
 
-async function saveRecord(exportAfter = false) {
-  const date    = document.getElementById('rec-date').value;
-  const leader  = document.getElementById('rec-leader').value.trim();
-  const project = document.getElementById('rec-project').value.trim();
-  const location= document.getElementById('rec-location').value.trim();
-  const remarks = document.getElementById('rec-remarks').value.trim();
-  const entries = getEntries();
+async function saveRecord(showPreviewAfter=false) {
+  const date=document.getElementById('rec-date').value;
+  const leader=document.getElementById('rec-leader').value.trim();
+  const project=document.getElementById('rec-project').value.trim();
+  const location=document.getElementById('rec-location').value.trim();
+  const remarks=document.getElementById('rec-remarks').value.trim();
+  const entries=getEntries();
+  const signature=sigPad.getDataURL();
 
-  if (!date)    { showToast('Please enter a date', 'error'); return; }
-  if (!project) { showToast('Please enter a project name', 'error'); return; }
-  if (entries.length === 0) { showToast('Please add at least one employee', 'error'); return; }
+  if (!date)    { showToast('Please enter a date','err'); return; }
+  if (!project) { showToast('Please enter a project name','err'); return; }
+  if (!entries.length) { showToast('Add at least one employee','err'); return; }
 
-  // Auto-register new employee names
-  for (const e of entries) { await ensureEmployee(e.employeeName); }
+  // Auto-register new names
+  for (const e of entries) await ensureEmployee(e.employeeName);
   if (leader) await ensureEmployee(leader);
 
-  const rec = {
-    id:              currentRecord ? currentRecord.id : 'att-' + Date.now(),
-    date,
-    project,
-    projectLocation: location,
-    teamLeader:      leader,
-    entries:         JSON.stringify(entries),
-    remarks,
-    submittedAt:     new Date().toISOString()
+  // Save signature to employee record for future reuse
+  if (signature && leader) {
+    const emp=employees.find(e=>e.name.toLowerCase()===leader.toLowerCase());
+    if (emp) {
+      emp.signature=signature;
+      localStorage.setItem('att_employees',JSON.stringify(employees));
+      sb('attendance_employees','UPSERT',emp).catch(()=>{});
+    }
+  }
+
+  const id=currentRecord?currentRecord.id:'att-'+Date.now();
+  const rec={
+    id, date, project, projectLocation:location, teamLeader:leader,
+    entries:JSON.stringify(entries),
+    teamLeaderSignature:signature||'',
+    remarks, submittedAt:new Date().toISOString()
   };
 
   // Update local state
-  if (currentRecord) {
-    const idx = records.findIndex(r => r.id === currentRecord.id);
-    if (idx >= 0) {
-      records[idx] = { ...rec, entries };
-    }
-  } else {
-    records.unshift({ ...rec, entries });
-  }
-  localStorage.setItem('att_records', JSON.stringify(records));
+  const idx=records.findIndex(r=>r.id===id);
+  const fullRec={...rec, entries}; // keep parsed entries locally
+  if (idx>=0) records[idx]=fullRec; else records.unshift(fullRec);
+  localStorage.setItem('att_records',JSON.stringify(records));
 
   // Sync to Supabase
-  const result = await sbCall('attendance_records', 'UPSERT', rec);
-  if (result) {
-    showToast('Record saved ✓', 'success');
+  const result=await sb('attendance_records','UPSERT',rec);
+  showToast(result?'Record saved ✓':'Saved locally (sync pending)', result?'ok':'err');
+
+  currentRecord=null;
+  if (showPreviewAfter) {
+    showView('home');
+    setTimeout(()=>openPreview(id),200);
   } else {
-    showToast('Saved locally (sync pending)', 'error');
+    showView('home');
   }
-
-  if (exportAfter) {
-    const savedRec = { ...rec, entries };
-    exportPDF(savedRec);
-  }
-
-  currentRecord = null;
-  showView('home');
-}
-
-async function saveAndExport() {
-  await saveRecord(true);
 }
 
 async function deleteRecord(id) {
-  const rec = records.find(r => r.id === id);
-  if (!rec || !confirm(`Delete record for "${rec.project}" on ${fmtDate(rec.date)}?`)) return;
-  records = records.filter(r => r.id !== id);
-  localStorage.setItem('att_records', JSON.stringify(records));
-  await sbCall('attendance_records', 'DELETE', null, id);
-  showToast('Record deleted');
-  showView('history');
-  renderHistory();
-  renderDashboard();
+  const rec=records.find(r=>r.id===id);
+  if (!rec||!confirm(`Delete record for "${rec.project}" on ${fmtDate(rec.date)}?`)) return;
+  records=records.filter(r=>r.id!==id);
+  localStorage.setItem('att_records',JSON.stringify(records));
+  await sb('attendance_records','DELETE',null,id);
+  showToast('Record deleted'); showView('history'); renderHistory(); renderDashboard();
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// PREVIEW MODAL
+// ═══════════════════════════════════════════════
+function openPreview(id) {
+  const rec=records.find(r=>r.id===id); if(!rec) return;
+  previewRecord=rec;
+  const entries=Array.isArray(rec.entries)?rec.entries:[];
+  const leader=rec.teamLeader||rec.teamleader||'—';
+  const loc=rec.projectLocation||rec.projectlocation||'—';
+  const sig=rec.teamLeaderSignature||rec.teamleadersignature||'';
+
+  // Populate preview sheet
+  document.getElementById('ps-date').textContent=fmtDate(rec.date);
+  document.getElementById('ps-date2').textContent=fmtDate(rec.date);
+  document.getElementById('ps-leader').textContent=leader;
+  document.getElementById('ps-leader-name').textContent=leader;
+  document.getElementById('ps-project').textContent=rec.project||'—';
+  document.getElementById('ps-location').textContent=loc;
+  document.getElementById('ps-count').textContent=entries.length;
+
+  // Signature
+  const img=document.getElementById('ps-sig-img');
+  const empty=document.getElementById('ps-sig-empty');
+  if (sig) { img.src=sig; img.style.display='block'; empty.style.display='none'; }
+  else     { img.style.display='none'; empty.style.display='block'; }
+
+  // Entry rows (min 10)
+  const numRows=Math.max(entries.length,10);
+  let rows='';
+  for (let i=0;i<numRows;i++) {
+    const e=entries[i];
+    const bg=i%2===0?'#fff':'#f5f7fa';
+    rows+=`<tr style="background:${bg}">
+      <td style="text-align:center;color:#aaa;font-size:12px">${i+1}</td>
+      <td>${e?e.employeeName||e.employeename||'':''}</td>
+      <td>${e?fmtTime(e.timeIn||e.timein):''}</td>
+      <td>${e?fmtTime(e.timeOut||e.timeout):''}</td>
+    </tr>`;
+  }
+  document.getElementById('ps-entries').innerHTML=rows;
+
+  // Remarks
+  const rb=document.getElementById('ps-remarks-box');
+  if (rec.remarks) { rb.style.display='block'; document.getElementById('ps-remarks').textContent=rec.remarks; }
+  else rb.style.display='none';
+
+  document.getElementById('ps-generated').textContent='Generated: '+new Date().toLocaleString('en-GB')+' · Eurolux Doors & Windows L.L.C.';
+
+  document.getElementById('preview-modal').classList.add('show');
+}
+function closePreview() { document.getElementById('preview-modal').classList.remove('show'); }
+
+// Export PDF from preview
+function exportPDF() {
+  if (!previewRecord) return;
+  showToast('Generating PDF…');
+  html2canvas(document.getElementById('preview-sheet'),{scale:2,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const imgData=canvas.toDataURL('image/png');
+    const pW=pdf.internal.pageSize.getWidth()-20;
+    const pH=(canvas.height/canvas.width)*pW;
+    pdf.addImage(imgData,'PNG',10,10,pW,pH);
+    const fname=`Attendance_${(previewRecord.project||'Record').replace(/[^a-zA-Z0-9]/g,'_')}_${previewRecord.date||'date'}.pdf`;
+    pdf.save(fname);
+    showToast('PDF downloaded ✓','ok');
+  }).catch(()=>showToast('PDF failed','err'));
+}
+
+// Export JPEG from preview
+function exportJPEG() {
+  if (!previewRecord) return;
+  showToast('Generating image…');
+  html2canvas(document.getElementById('preview-sheet'),{scale:2,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
+    canvas.toBlob(blob=>{
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;
+      a.download=`Attendance_${(previewRecord.project||'Record').replace(/[^a-zA-Z0-9]/g,'_')}_${previewRecord.date||'date'}.jpg`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('JPEG downloaded ✓','ok');
+    },'image/jpeg',0.95);
+  }).catch(()=>showToast('Export failed','err'));
+}
+
+// ═══════════════════════════════════════════════
 // DASHBOARD
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function renderDashboard() {
-  const today = todayStr();
-
-  // Header date
-  document.getElementById('today-date').textContent =
-    new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
-
-  // Stats
-  const todayRecs    = records.filter(r => r.date === today);
-  const totalOnSite  = todayRecs.reduce((sum, r) => sum + (r.entries?.length || 0), 0);
-  document.getElementById('dash-today').textContent            = todayRecs.length;
-  document.getElementById('dash-employees-today').textContent  = totalOnSite;
-  document.getElementById('dash-total').textContent            = records.length;
-
-  // Today's records
-  const todayBox = document.getElementById('today-records');
-  if (todayRecs.length === 0) {
-    todayBox.innerHTML = '<div class="empty-state" style="padding:20px"><div class="icon">📋</div><p>No records for today yet</p></div>';
-  } else {
-    todayBox.innerHTML = todayRecs.map(r => recordCard(r, 'home')).join('');
-  }
-
-  // Recent records (last 5, excluding today)
-  const recentBox  = document.getElementById('recent-records');
-  const recentRecs = records.filter(r => r.date !== today).slice(0, 5);
-  if (recentRecs.length === 0) {
-    recentBox.innerHTML = '<div class="empty-state" style="padding:20px"><p>No previous records</p></div>';
-  } else {
-    recentBox.innerHTML = recentRecs.map(r => recordCard(r, 'home')).join('');
-  }
+  document.getElementById('today-date').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const t=today();
+  const todayRecs=records.filter(r=>r.date===t);
+  const onSite=todayRecs.reduce((s,r)=>s+(r.entries?.length||0),0);
+  document.getElementById('d-today').textContent=todayRecs.length;
+  document.getElementById('d-onsite').textContent=onSite;
+  document.getElementById('d-total').textContent=records.length;
+  const tb=document.getElementById('today-recs');
+  tb.innerHTML=todayRecs.length?todayRecs.map(r=>recCard(r,'home')).join('')
+    :'<div class="empty"><div class="icon">📋</div><p>No records today yet</p></div>';
+  const rb=document.getElementById('recent-recs');
+  const recent=records.filter(r=>r.date!==t).slice(0,5);
+  rb.innerHTML=recent.length?recent.map(r=>recCard(r,'home')).join('')
+    :'<div class="empty"><p>No previous records</p></div>';
 }
 
-function recordCard(r, fromView) {
-  const empCount = r.entries?.length || 0;
-  const leader   = r.teamLeader || r.teamleader || '—';
-  return `
-    <div class="record-card" onclick="viewDetail('${r.id}', '${fromView}')">
-      <div class="record-card-main">
-        <div class="project">${r.project || '—'}</div>
-        <div class="meta">📍 ${r.projectLocation || r.projectlocation || 'No location'} &nbsp;·&nbsp; 👷 ${leader}</div>
-      </div>
-      <div class="record-card-right">
-        <div class="record-date">${fmtDate(r.date)}</div>
-        <span class="badge badge-blue">👤 ${empCount} employee${empCount !== 1 ? 's' : ''}</span>
-      </div>
-    </div>`;
+function recCard(r, from) {
+  const cnt=r.entries?.length||0;
+  const leader=r.teamLeader||r.teamleader||'—';
+  const loc=r.projectLocation||r.projectlocation||'No location';
+  return `<div class="rec-card" onclick="viewDetail('${r.id}','${from}')">
+    <div>
+      <div class="project">${r.project||'—'}</div>
+      <div class="meta">📍 ${loc} &nbsp;·&nbsp; 👷 ${leader}</div>
+    </div>
+    <div class="rec-card-right">
+      <div class="rec-date">${fmtDate(r.date)}</div>
+      <span class="badge badge-blue">👤 ${cnt} employee${cnt!==1?'s':''}</span>
+    </div>
+  </div>`;
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // HISTORY
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 function renderHistory() {
-  const q     = (document.getElementById('hist-search')?.value || '').toLowerCase();
-  const month = document.getElementById('hist-month')?.value || '';
-
-  let list = [...records];
-  if (q) list = list.filter(r =>
-    (r.project         || '').toLowerCase().includes(q) ||
-    (r.projectLocation || r.projectlocation || '').toLowerCase().includes(q) ||
-    (r.teamLeader      || r.teamleader || '').toLowerCase().includes(q)
-  );
-  if (month) list = list.filter(r => (r.date || '').startsWith(month));
-
-  const box = document.getElementById('history-list');
-  if (list.length === 0) {
-    box.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No records match your filter</p></div>';
-    return;
-  }
-
-  // Group by date
-  const grouped = {};
-  list.forEach(r => {
-    const d = r.date || 'Unknown';
-    if (!grouped[d]) grouped[d] = [];
-    grouped[d].push(r);
-  });
-
-  const sortedDates = Object.keys(grouped).sort((a,b) => b.localeCompare(a));
-  box.innerHTML = sortedDates.map(date => `
+  const q=(document.getElementById('hist-q')?.value||'').toLowerCase();
+  const mo=document.getElementById('hist-month')?.value||'';
+  let list=[...records];
+  if (q) list=list.filter(r=>(r.project||'').toLowerCase().includes(q)||(r.projectLocation||r.projectlocation||'').toLowerCase().includes(q)||(r.teamLeader||r.teamleader||'').toLowerCase().includes(q));
+  if (mo) list=list.filter(r=>(r.date||'').startsWith(mo));
+  const box=document.getElementById('history-list');
+  if (!list.length) { box.innerHTML='<div class="empty"><div class="icon">📋</div><p>No records match your filter</p></div>'; return; }
+  const grouped={};
+  list.forEach(r=>{const d=r.date||'Unknown';if(!grouped[d])grouped[d]=[];grouped[d].push(r)});
+  const dates=Object.keys(grouped).sort((a,b)=>b.localeCompare(a));
+  box.innerHTML=dates.map(d=>`
     <div style="margin-bottom:6px">
-      <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;padding:10px 0 4px">${fmtDate(date)}</div>
-      ${grouped[date].map(r => recordCard(r, 'history')).join('')}
+      <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;padding:10px 0 4px">${fmtDate(d)}</div>
+      ${grouped[d].map(r=>recCard(r,'history')).join('')}
     </div>`).join('');
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // DETAIL VIEW
-// ═══════════════════════════════════════════════════════
-function viewDetail(id, fromView) {
-  const rec = records.find(r => r.id === id);
-  if (!rec) return;
-  const entries = Array.isArray(rec.entries) ? rec.entries : [];
-  const leader  = rec.teamLeader || rec.teamleader || '—';
-  const loc     = rec.projectLocation || rec.projectlocation || '—';
-
-  document.getElementById('detail-view').querySelector('.back-link').onclick =
-    () => showView(fromView || 'history');
-
-  document.getElementById('detail-content').innerHTML = `
-    <div class="detail-header">
-      <h2>${rec.project || '—'}</h2>
-      <div class="detail-meta">📅 ${fmtDate(rec.date)} &nbsp;·&nbsp; 📍 ${loc} &nbsp;·&nbsp; 👷 ${leader}</div>
+// ═══════════════════════════════════════════════
+function viewDetail(id, from) {
+  const rec=records.find(r=>r.id===id); if(!rec) return;
+  const entries=Array.isArray(rec.entries)?rec.entries:[];
+  const leader=rec.teamLeader||rec.teamleader||'—';
+  const loc=rec.projectLocation||rec.projectlocation||'—';
+  const sig=rec.teamLeaderSignature||rec.teamleadersignature||'';
+  document.getElementById('detail-back').onclick=()=>showView(from||'history');
+  document.getElementById('detail-content').innerHTML=`
+    <div class="detail-hdr">
+      <h2>${rec.project||'—'}</h2>
+      <div class="dmeta">📅 ${fmtDate(rec.date)} &nbsp;·&nbsp; 📍 ${loc} &nbsp;·&nbsp; 👷 ${leader}</div>
     </div>
     <div class="action-row">
-      <button class="btn btn-primary btn-sm" onclick="openEditRecord('${rec.id}')">✏️ Edit</button>
-      <button class="btn btn-success btn-sm" onclick="exportPDF(records.find(r=>r.id==='${rec.id}'))">📄 Export PDF</button>
+      <button class="btn btn-primary btn-sm" onclick="openPreview('${rec.id}')">👁️ View &amp; Export</button>
+      <button class="btn btn-outline btn-sm" onclick="openEditRecord('${rec.id}')">✏️ Edit</button>
       <button class="btn btn-danger btn-sm" onclick="deleteRecord('${rec.id}')">🗑️ Delete</button>
     </div>
-    <div class="detail-section">
-      <h4>Record Details</h4>
-      <div class="detail-field"><span class="detail-field-label">Date</span><span class="detail-field-val">${fmtDate(rec.date)}</span></div>
-      <div class="detail-field"><span class="detail-field-label">Project</span><span class="detail-field-val">${rec.project || '—'}</span></div>
-      <div class="detail-field"><span class="detail-field-label">Location</span><span class="detail-field-val">${loc}</span></div>
-      <div class="detail-field"><span class="detail-field-label">Team Leader</span><span class="detail-field-val">${leader}</span></div>
-      ${rec.remarks ? `<div class="detail-field"><span class="detail-field-label">Remarks</span><span class="detail-field-val">${rec.remarks}</span></div>` : ''}
+    <div class="detail-sec">
+      <h4>Details</h4>
+      <div class="dfield"><span class="dfield-lbl">Date</span>${fmtDate(rec.date)}</div>
+      <div class="dfield"><span class="dfield-lbl">Project</span>${rec.project||'—'}</div>
+      <div class="dfield"><span class="dfield-lbl">Location</span>${loc}</div>
+      <div class="dfield"><span class="dfield-lbl">Team Leader</span>${leader}</div>
+      ${sig?`<div class="dfield"><span class="dfield-lbl">Signature</span><img src="${sig}" style="max-height:50px;border-bottom:1px solid #ccc;display:block;margin-top:4px"></div>`:''}
+      ${rec.remarks?`<div class="dfield"><span class="dfield-lbl">Remarks</span>${rec.remarks}</div>`:''}
     </div>
-    <div class="detail-section">
-      <h4>Attendance — ${entries.length} Employee${entries.length !== 1 ? 's' : ''}</h4>
-      ${entries.length === 0 ? '<p style="color:var(--text-muted);font-size:14px">No entries</p>' : `
-      <div style="overflow-x:auto">
-        <table class="detail-entries">
-          <thead><tr><th>#</th><th>Employee Name</th><th>Time In</th><th>Time Out</th></tr></thead>
-          <tbody>
-            ${entries.map((e, i) => `
-              <tr>
-                <td style="color:#aaa;font-size:12px">${i+1}</td>
-                <td>${e.employeeName || e.employeename || '—'}</td>
-                <td>${fmtTime(e.timeIn || e.timein)}</td>
-                <td>${fmtTime(e.timeOut || e.timeout)}</td>
-              </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>`}
+    <div class="detail-sec">
+      <h4>Attendance — ${entries.length} Employee${entries.length!==1?'s':''}</h4>
+      ${entries.length?`<div style="overflow-x:auto"><table class="det-ent">
+        <thead><tr><th>#</th><th>Name</th><th>Time In</th><th>Time Out</th></tr></thead>
+        <tbody>${entries.map((e,i)=>`<tr>
+          <td style="color:#aaa;font-size:12px">${i+1}</td>
+          <td>${e.employeeName||e.employeename||'—'}</td>
+          <td>${fmtTime(e.timeIn||e.timein)}</td>
+          <td>${fmtTime(e.timeOut||e.timeout)}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`:'<p style="color:var(--muted);font-size:14px">No entries</p>'}
     </div>`;
-
   showView('detail');
 }
 
-// ═══════════════════════════════════════════════════════
-// PDF EXPORT
-// ═══════════════════════════════════════════════════════
-function exportPDF(rec) {
-  if (!rec) { showToast('No record to export', 'error'); return; }
-  const { jsPDF } = window.jspdf;
-  const pdf  = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  const W    = 210, M = 15;
-  let y      = 18;
-
-  // ── Header ──────────────────────────────────────────
-  pdf.setFillColor(26, 58, 92);
-  pdf.rect(M, y - 6, W - M*2, 14, 'F');
-  pdf.setTextColor(255, 255, 255);
-  pdf.setFontSize(13);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('EUROLUX DOORS AND WINDOWS L.L.C.', W/2, y, { align: 'center' });
-  pdf.setFontSize(9);
-  pdf.setFont('helvetica', 'normal');
-  pdf.text('SITE ATTENDANCE', W/2, y + 5, { align: 'center' });
-  y += 18;
-
-  // ── Info block ───────────────────────────────────────
-  pdf.setTextColor(0, 0, 0);
-  pdf.setDrawColor(200, 210, 220);
-  pdf.setFillColor(248, 250, 252);
-  pdf.rect(M, y, W - M*2, 26, 'FD');
-
-  pdf.setFontSize(10);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('Date:', M + 4, y + 7);
-  pdf.setFont('helvetica', 'normal');
-  pdf.text(fmtDate(rec.date), M + 25, y + 7);
-
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('Project:', M + 4, y + 14);
-  pdf.setFont('helvetica', 'normal');
-  pdf.text(rec.project || '—', M + 25, y + 14);
-
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('Location:', M + 4, y + 21);
-  pdf.setFont('helvetica', 'normal');
-  pdf.text(rec.projectLocation || rec.projectlocation || '—', M + 25, y + 21);
-
-  const col2x = W/2 + 5;
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('Team Leader:', col2x, y + 7);
-  pdf.setFont('helvetica', 'normal');
-  pdf.text(rec.teamLeader || rec.teamleader || '—', col2x + 30, y + 7);
-  y += 32;
-
-  // ── Attendance table ─────────────────────────────────
-  const entries = Array.isArray(rec.entries) ? rec.entries : [];
-  const colW = [12, 90, 33, 33, 12];
-  const cols = ['No.', 'Employee Name', 'Time In', 'Time Out', ''];
-  const rowH = 8;
-  const tblW = W - M*2;
-
-  // Header row
-  pdf.setFillColor(26, 58, 92);
-  pdf.rect(M, y, tblW, rowH, 'F');
-  pdf.setTextColor(255,255,255);
-  pdf.setFontSize(9);
-  pdf.setFont('helvetica', 'bold');
-  let cx = M;
-  cols.forEach((c, i) => {
-    if (c) pdf.text(c, cx + 3, y + 5.5);
-    cx += colW[i];
-  });
-  y += rowH;
-  pdf.setTextColor(0,0,0);
-  pdf.setFont('helvetica', 'normal');
-
-  // Data rows (min 10 rows)
-  const numRows = Math.max(entries.length, 10);
-  for (let i = 0; i < numRows; i++) {
-    const e      = entries[i];
-    const fill   = i % 2 === 0 ? [255,255,255] : [248,250,252];
-    pdf.setFillColor(...fill);
-    pdf.rect(M, y, tblW, rowH, 'FD');
-    pdf.setDrawColor(220,225,230);
-
-    if (e) {
-      pdf.setFontSize(9);
-      cx = M;
-      pdf.text(String(i + 1), cx + 3, y + 5.5); cx += colW[0];
-      const eName = e.employeeName || e.employeename || '';
-      pdf.text(eName.slice(0, 42), cx + 2, y + 5.5); cx += colW[1];
-      pdf.text(fmtTime(e.timeIn || e.timein), cx + 2, y + 5.5); cx += colW[2];
-      pdf.text(fmtTime(e.timeOut || e.timeout), cx + 2, y + 5.5);
-    } else {
-      pdf.setFontSize(9);
-      pdf.text(String(i + 1), M + 3, y + 5.5);
-    }
-    y += rowH;
-  }
-  pdf.setDrawColor(200,210,220);
-
-  y += 6;
-  // ── Footer fields ───────────────────────────────────
-  pdf.setFontSize(10);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('Team Leader:', M, y);
-  pdf.setFont('helvetica', 'normal');
-  pdf.line(M + 30, y, M + 95, y);
-  pdf.text(rec.teamLeader || rec.teamleader || '', M + 31, y - 1);
-
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('Signature:', M + 100, y);
-  pdf.line(M + 120, y, W - M, y);
-  y += 12;
-
-  if (rec.remarks) {
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Remarks:', M, y);
-    pdf.setFont('helvetica', 'normal');
-    const lines = pdf.splitTextToSize(rec.remarks, tblW - 30);
-    pdf.text(lines, M + 22, y);
-    y += lines.length * 5 + 4;
-  }
-
-  // Page number
-  pdf.setFontSize(8);
-  pdf.setTextColor(150,150,150);
-  pdf.text(`Generated: ${new Date().toLocaleString('en-GB')} · Eurolux Doors & Windows L.L.C.`, W/2, 290, { align: 'center' });
-
-  const filename = `Attendance_${rec.project || 'Record'}_${rec.date || 'date'}.pdf`.replace(/[^a-zA-Z0-9_.-]/g, '_');
-  pdf.save(filename);
-  showToast('PDF exported ✓', 'success');
-}
-
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', async () => {
-  updateDatalist();
-  renderDashboard();
-
-  // Set default month filter to current month
-  const monthInput = document.getElementById('hist-month');
-  if (monthInput) monthInput.value = todayStr().slice(0, 7);
-
-  // Load from Supabase
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',async()=>{
+  const mo=document.getElementById('hist-month');
+  if(mo) mo.value=today().slice(0,7);
+  updateDatalists(); renderDashboard();
   await loadFromSupabase();
-
-  // Auto-sync when tab regains focus
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      loadFromSupabase();
-    }
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible') loadFromSupabase();
   });
-
-  // Service worker registration
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js').catch(() => {});
-  }
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(()=>{});
 });
 </script>
 </body>
